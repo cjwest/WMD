@@ -26,6 +26,17 @@ function webauth_admin_settings($form, &$form_state) {
     ),
     '#description' => t('Hide the Local Drupal Login Block if it&rsquo;s not needed by local accounts to prevent users from entering their SUNet ID and password there by mistake. This does not affect the <em>user/login</em> form which can still be used to log in as <em>user 1</em> when needed.'),
   );
+  // CJW
+  $form['webauth_direct_to_user_page'] = array(
+    '#type' => 'radios',
+    '#title' => t('Stanford WebAuth options'),
+    '#default_value' => variable_get('webauth_direct_to_user_page', 0),
+    '#options' => array(
+      0 => t('Direct login to WebAuth page'),
+      1 => t('Direct login to user page'),
+    ),
+    '#description' => t('When encountering an 403 error, direct the login to the user page instead of the WebAuth page. This will make it easier for users who do not have SUNet IDs.'),
+  );
   $form['webauth_link_text'] = array(
     '#type' => 'textfield',
     '#title' => t('WebAuth Link Text'),

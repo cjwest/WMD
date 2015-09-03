@@ -170,21 +170,40 @@ class WebAuthSession {
     // Make sure we create a return url before we make a login url.
     $this->makeReturnUrl();
 
+    // CJW:
+    // When encountering an 403 error, direct the login to the user page instead
+    // of the WebAuth page. This will make it easier for users who do not have SUNet IDs.
+
+    //$direct_to_user_page = variable_get('webauth_direct_to_user_page', TRUE);
+    $direct_to_user_page = TRUE;
+
     // This is a fix for non-clean urls.  Need to provide a link to the full
     // path so that we hit the webauth dir. That dir will redirect to proper
     // non-clean path after authentication via webauth.
-	// Without this, a person who's not logged in to WebAuth will end up
-	// in a redirect loop. Unfortunately, we lose the destination if someone logs in and clean URLs are off
+	  // Without this, a person who's not logged in to WebAuth will end up
+	  // in a redirect loop. Unfortunately, we lose the destination if someone logs in and clean URLs are off
     if (!variable_get('clean_url', FALSE)) {
-      $return = 'https://' . $_SERVER['SERVER_NAME'] . base_path() . variable_get('webauth_path', conf_path() . '/webauth')
-                . '/login';
+      if ($direct_to_user_page) {
+        $return = 'https://' . $_SERVER['SERVER_NAME'] . base_path() . '/user';
+      }
+      else {
+        $return = 'https://' . $_SERVER['SERVER_NAME'] . base_path() . variable_get('webauth_path', conf_path() . '/webauth')
+                  . '/login';
+      }
+
       if (isset($this->returnUrl)) {
         $return .= '?destination=' . $this->returnUrl;
       }
     }
     else {
-      $return = url(variable_get('webauth_path', conf_path() . '/webauth') . '/login',
-                    array('absolute' => TRUE, 'query' => array('destination' => $this->returnUrl)));
+      if ($direct_to_user_page) {
+        $return = url('/user', array('absolute' => TRUE, 'query' => array('destination' => $this->returnUrl)));
+      }
+      else {
+        $return = url(variable_get('webauth_path', conf_path() . '/webauth') . '/login',
+                      array('absolute' => TRUE, 'query' => array('destination' => $this->returnUrl)));
+      }
+
     }
     return $return;
   }
